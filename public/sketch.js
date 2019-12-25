@@ -13,7 +13,7 @@ var gameResult = false;
 var colors;
 
 function setup() {
-  socket = io.connect("http://localhost:5000");
+  socket = io.connect("https://floating-stream-60936.herokuapp.com");
   // When a player reaches the landing page, the server assigns them game code.
   socket.on("gameCodeAssigned", gameCodeAssigned);
   // You have been matched with another player, and a game is beginning.
