@@ -1,0 +1,19 @@
+{
+  "name": "hex",
+  "version": "1.0.0",
+  "description": "A platform for two-player hex games.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Aaron",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  },
+  "engines": {
+    "node": "8.9.1"
+  }
+}
