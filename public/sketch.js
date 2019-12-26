@@ -1,5 +1,5 @@
 var socket;
-var stage = -1; // -1 is loading, 0 is landing page, 1 is in-game.
+var stage = 0;
 
 var gameCode = "";
 var inputCode = "";
@@ -40,9 +40,7 @@ function setup() {
 function draw() {
   background(colors["background"]);
   
-  if(stage == -1) {
-    renderLoading();
-  } else if(stage == 0) {
+  if(stage == 0) {
     renderCode();
     renderInput();
   } else if(stage == 1) {
@@ -60,7 +58,6 @@ function draw() {
 }
 
 function gameCodeAssigned(code) {
-  stage = 0;
   gameCode = code;
 }
 
