@@ -16,7 +16,7 @@ var gameResult = false;
 var colors;
 
 function setup() {
-  socket = io.connect("http://playhexonline.herokuapp.com");
+  socket = io.connect("https://playhexonline.herokuapp.com");
   // When a player reaches the landing page, the server assigns them game code.
   socket.on("gameCodeAssigned", gameCodeAssigned);
   // You have been matched with another player, and a game is beginning.
