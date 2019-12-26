@@ -1,3 +1,22 @@
+// Render the loading (pre-landing) page.
+// This displays before a game code has been recieved from the server.
+function renderLoading() {
+  noStroke();
+  fill(colors["main"]);
+  textAlign(LEFT, CENTER);
+  textSize(60);
+  textFont("Georgia");
+  if(frameCount % 120 < 30) {
+    text("LOADING", width / 2 - 75, height / 2 - 50);
+  } else if(framceCount % 120 < 60) {
+    text("LOADING.", width / 2 - 75, height / 2 - 50);
+  } else if(frameCount % 120 < 90) {
+    text("LOADING..", width / 2 - 75, height / 2 - 50);
+  } else {
+    text("LOADING...", width / 2 - 75, height / 2 - 50);
+  }
+}
+
 // Render everything that shows during your turn.
 function renderMyTurn() {
   noStroke();
