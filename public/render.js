@@ -15,7 +15,7 @@ function renderProposing() {
   fill(colors[playerColor]);
   textSize(30);
   textAlign(CENTER);
-  text("Choose a move to propose.", width / 2, height / 2 + 330);
+  text("Propose a first move.", width / 2, height / 2 + 330);
   
   renderHighlight("main");
 }
@@ -63,11 +63,11 @@ function renderOpponentTurn() {
       text("Wait for your opponent to propose a move.", width / 2, height / 2 + 330);
     }
   } else if(gameResult == false) {
-    text("Wait for your opponent's move.", width / 2, height / 2 + 330);
+    text("Wait for your opponent to play.", width / 2, height / 2 + 330);
   } else if(gameResult == playerColor) {
-    text("You have won the game.", width / 2, height / 2 + 330);
+    text("You have won.", width / 2, height / 2 + 330);
   } else {
-    text("You have lost the game.", width / 2, height / 2 + 330);
+    text("You have lost.", width / 2, height / 2 + 330);
   }
 }
 
