@@ -6,13 +6,46 @@ function renderMyTurn() {
   textAlign(CENTER);
   text("Play your move.", width / 2, height / 2 + 330);
   
-  renderHighlight();
+  renderHighlight(playerColor);
 }
 
-function renderHighlight() {
+// Render everything that shows while proposing the initial move.
+function renderProposing() {
+  noStroke();
+  fill(colors[playerColor]);
+  textSize(30);
+  textAlign(CENTER);
+  text("Choose a move to propose.", width / 2, height / 2 + 330);
+  
+  renderHighlight("main");
+}
+
+// Render everything that shows while deciding on the opponent's proposition for the initial move.
+function renderDeciding() {
+  noStroke();
+  fill(colors[playerColor]);
+  textSize(30);
+  textAlign(CENTER);
+  text("Would you like to play this move?", width / 2, height / 2 + 330);
+  
+  // Display the yes and no buttons.
+  rectMode(CENTER);
+  strokeWeight(3);
+  stroke(colors[playerColor]);
+  noFill();
+  rect(width / 2 - 75, height / 2 + 370, 50, 30, 10);
+  rect(width / 2 + 75, height / 2 + 370, 50, 30, 10);
+  noStroke();
+  fill(colors[playerColor]);
+  textSize(20);
+  text("Yes", width / 2 - 75, height / 2 + 372.5);
+  text("No", width / 2 + 75, height / 2 + 372.5);
+}
+
+function renderHighlight(highlightColor) {
   for(var i = 0; i < hexagons.length; i++) {
     if(hexagons[i].coordsInside(mouseX, mouseY) && hexagons[i].fillColor == false) {
-      hexagons[i].render(colors[playerColor]);
+      hexagons[i].render(colors[highlightColor]);
     }
   }
 }
@@ -23,7 +56,13 @@ function renderOpponentTurn() {
   fill(colors[playerColor]);
   textSize(30);
   textAlign(CENTER);
-  if(gameResult == false) {
+  if(propositionResolved == false) {
+    if(playerColor == "blue") {
+      text("Wait for your opponent to make a choice.", width / 2, height / 2 + 330);
+    } else if(playerColor == "red") {
+      text("Wait for your opponent to propose a move.", width / 2, height / 2 + 330);
+    }
+  } else if(gameResult == false) {
     text("Wait for your opponent's move.", width / 2, height / 2 + 330);
   } else if(gameResult == playerColor) {
     text("You have won the game.", width / 2, height / 2 + 330);
@@ -119,20 +158,20 @@ function renderInput() {
   strokeWeight(3);
   stroke(colors["main"]);
   strokeCap(SQUARE);
-  line(width / 2 - 150.5, height / 2 + 50, width / 2 + 149.5, height / 2 + 50);
+  line(width / 2 - 160.5, height / 2 + 50, width / 2 + 159.5, height / 2 + 50);
   rectMode(CENTER);
   noStroke();
   fill(red(colors["main"]), green(colors["main"]), blue(colors["main"]), 50);
-  rect(width / 2, height / 2 + 12.5, 300, 75, 20, 20, 0, 0);
+  rect(width / 2, height / 2 + 12.5, 320, 75, 20, 20, 0, 0);
   fill(colors["main"]);
   textAlign(LEFT, CENTER);
-  text(inputCode, width / 2 - 130, height / 2 + 20);
+  text(inputCode, width / 2 - 140, height / 2 + 20);
   if(inputCode.length == 5) {
-    text("✓", width / 2 + 75, height / 2 + 20);
+    //text("✓", width / 2 + 75, height / 2 + 20);
     textSize(20);
-    text("Press enter to begin.", width / 2 - 130, height / 2 + 75);
+    text("Press enter to begin.", width / 2 - 140, height / 2 + 75);
   } else {
     textSize(20);
-    text("Enter your friend's code.", width / 2 - 130, height / 2 + 75);
+    text("Enter your friend's code.", width / 2 - 140, height / 2 + 75);
   }
 }

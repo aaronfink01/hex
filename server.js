@@ -24,6 +24,22 @@ function newConnection(socket) {
   socket.emit("gameCodeAssigned", selectedCode);
   codes[selectedCode] = socket.id;
   
+  socket.on("disconnect", disconnect);
+  function disconnect() {
+    // If the socket has a code assigned, delete it.
+    for(var code in codes) {
+      if(codes[code] == socket.id) {
+        delete codes[code];
+      }
+    }
+    // If the socket is in a game, forget about it.
+    for(var i = 0; i < games.length; i++) {
+      if(games[i][0] == socket.id || games[i][1] == socket.id) {
+        games.splice(i, 1);
+      }
+    }
+  }
+  
   // When a player enters a game code from the landing page.
   socket.on("enterGame", enterGame);
   // data contains:
@@ -66,4 +82,37 @@ function newConnection(socket) {
     }
     io.to(opponentId).emit("opponentPlayed", data);
   }
+  
+  socket.on("proposedFirstMove", proposedFirstMove);
+  // data contains:
+  //    "x" which is the x position of the selected hexagon and
+  //    "y" which is the y position of the selected hexagon and
+  // note (as above): width / 2 and height / 2 have been substracted respectively
+  // so players with different window sizes will not encounter problems.
+  function proposedFirstMove(data) {
+    var opponentId;
+    // Determine the opponent's socket id.
+    for(var i = 0; i < games.length; i++) {
+      if(games[i][0] == socket.id) {
+        opponentId = games[i][1];
+      } else if(games[i][1] == socket.id) {
+        opponentId = games[i][0];
+      }
+    }
+    io.to(opponentId).emit("opponentProposed", data);
+  }
+  
+  socket.on("resolvedProposition", resolvedProposition);
+  function resolvedProposition(accepted) {
+   var opponentId;
+    // Determine the opponent's socket id.
+    for(var i = 0; i < games.length; i++) {
+      if(games[i][0] == socket.id) {
+        opponentId = games[i][1];
+      } else if(games[i][1] == socket.id) {
+        opponentId = games[i][0];
+      }
+    }
+    io.to(opponentId).emit("opponentResolvedProposition", accepted);
+  } 
 }

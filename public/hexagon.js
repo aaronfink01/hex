@@ -21,10 +21,9 @@ class Hexagon {
       } else {
         fill(red(highlightColor), green(highlightColor), blue(highlightColor), 100);
       }
-    } else if(this.fillColor == "blue") {
-      fill(0, 75, 168);
-    } else if(this.fillColor == "red") {
-      fill(191, 33, 30);
+    } else {
+      print(this.fillColor)
+      fill(colors[this.fillColor]);
     }
     // Place the six vertices of the hexagon.
     vertex(this.x + 30, this.y);

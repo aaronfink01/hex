@@ -6,6 +6,9 @@ var inputCode = "";
 
 var hexagons = [];
 var playerColor;
+var proposingFirstMove = false;
+var decidingOnProposition = false;
+var propositionResolved = false;
 var myTurn = false;
 var gameResult = false;
 
@@ -13,13 +16,17 @@ var gameResult = false;
 var colors;
 
 function setup() {
-  socket = io.connect("https://playhexonline.herokuapp.com/");
+  socket = io.connect("http://playhexonline.herokuapp.com");
   // When a player reaches the landing page, the server assigns them game code.
   socket.on("gameCodeAssigned", gameCodeAssigned);
   // You have been matched with another player, and a game is beginning.
   socket.on("enterGame", enterGame);
   // Your opponent has played their move.
-  socket.on("opponentPlayed", opponentPlayed)
+  socket.on("opponentPlayed", opponentPlayed);
+  // Your opponent has proposed the first move of the game.
+  socket.on("opponentProposed", opponentProposed);
+  // Your opponent has accepted or denied your proposed initial move.
+  socket.on("opponentResolvedProposition", opponentResolvedProposition);
   
   createCanvas(windowWidth, windowHeight);
   colors = {
@@ -38,7 +45,11 @@ function draw() {
     renderInput();
   } else if(stage == 1) {
     renderBoard();
-    if(myTurn) {
+    if(proposingFirstMove) {
+      renderProposing();
+    } else if(decidingOnProposition) {
+      renderDeciding();
+    } else if(myTurn) {
       renderMyTurn();
     } else {
       renderOpponentTurn();
@@ -71,12 +82,54 @@ function enterGame(assignedColor) {
   
   // The blue player goes first.
   if(assignedColor == "blue") {
+    proposingFirstMove = true;
+  }
+}
+
+function opponentProposed(movePosition) {
+  decidingOnProposition = true;
+  // Find the hexagon which the opponent proposed and change its color.
+  for(var i = 0; i < hexagons.length; i++) {
+    // We check inside instead of equality to avoid rounding error problems.
+    if(hexagons[i].coordsInside(movePosition["x"] + width / 2, movePosition["y"] + height / 2)) {
+      hexagons[i].fillColor = "main";
+    }
+  }
+}
+
+function opponentResolvedProposition(accepted) {
+  propositionResolved = true;
+  // Did the opponent accept your proposed initial move?
+  if(accepted) {
     myTurn = true;
+    // Determine the opponent's color.
+    var opponentColor;
+    if(playerColor == "red") {
+      opponentColor = "blue";
+    } else if(playerColor == "blue") {
+      opponentColor = "red";
+    }
+    // Find the proposed hexagon and set it to the opponent's color.
+    for(var i = 0; i < hexagons.length; i++) {
+      if(hexagons[i].fillColor == "main") {
+        hexagons[i].fillColor = opponentColor;
+      }
+    }
+  }
+  // Did the opponent reject your proposed initial move?
+  if(accepted == false) {
+    myTurn = false;
+    // Find the proposed hexagon and set it to your own color.
+    for(var i = 0; i < hexagons.length; i++) {
+      if(hexagons[i].fillColor == "main") {
+        hexagons[i].fillColor = playerColor;
+      }
+    }
   }
 }
 
 function opponentPlayed(movePosition) {
-  // Determing the opponent's color.
+  // Determine the opponent's color.
   var opponentColor;
   if(playerColor == "red") {
     opponentColor = "blue";
@@ -99,17 +152,58 @@ function opponentPlayed(movePosition) {
 }
 
 function mouseClicked() {
-  if(stage == 1 && myTurn) {
+  if(stage == 1) {
     // Find the hexagon in which you played and send off its position.
     for(var i = 0; i < hexagons.length; i++) {
       if(hexagons[i].coordsInside(mouseX, mouseY) && hexagons[i].fillColor == false) {
-        hexagons[i].fillColor = playerColor;
-        myTurn = false;
-        var gameOver = checkGameOver();
-        socket.emit("playedMove", {"x": hexagons[i].x - width / 2, "y": hexagons[i].y - height / 2, "gameOver": gameOver});
-        if(gameOver) {
-          gameResult = playerColor;
+        if(myTurn) {
+          hexagons[i].fillColor = playerColor;
+          myTurn = false;
+          var gameOver = checkGameOver();
+          socket.emit("playedMove", {"x": hexagons[i].x - width / 2, "y": hexagons[i].y - height / 2, "gameOver": gameOver});
+          if(gameOver) {
+            gameResult = playerColor;
+          }
+        } else if(proposingFirstMove) {
+          hexagons[i].fillColor = "main";
+          socket.emit("proposedFirstMove", {"x": hexagons[i].x - width / 2, "y": hexagons[i].y - height / 2});
+          proposingFirstMove = false;
         }
+      }
+    }
+    // Or maybe you were accepting / denying the initial proposition.
+    if(decidingOnProposition) {
+      // Did you press the yes button?
+      if(mouseX > width / 2 - 100 && mouseX < width / 2 - 50 && mouseY > height / 2 + 355 && mouseY < height / 2 + 385) {
+        // Find the proposed hexagon and set it to your own color.
+        for(var i = 0; i < hexagons.length; i++) {
+          if(hexagons[i].fillColor == "main") {
+            hexagons[i].fillColor = playerColor;
+          }
+        }
+        decidingOnProposition = false;
+        socket.emit("resolvedProposition", true);
+        propositionResolved = true;
+      }
+      // Did you press the no button?
+      if(mouseX > width / 2 + 50 && mouseX < width / 2 + 100 && mouseY > height / 2 + 355 & mouseY < height / 2 + 385) {
+        // Determine the opponent's color.
+        var opponentColor;
+        if(playerColor == "red") {
+          opponentColor = "blue";
+        } else if(playerColor == "blue") {
+          opponentColor = "red";
+        }
+        // Find the proposed hexagon and set it to the opponent's color.
+        for(var i = 0; i < hexagons.length; i++) {
+          if(hexagons[i].fillColor == "main") {
+            hexagons[i].fillColor = opponentColor;
+          }
+        }
+        decidingOnProposition = false;
+        myTurn = true;
+        socket.emit("resolvedProposition", false);
+        propositionResolved = true;
       }
     }
   }
@@ -118,7 +212,7 @@ function mouseClicked() {
 function keyTyped() {
   if(stage == 0) {
     var alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    if(alphabet.includes(key) && inputCode.length < 7) {
+    if(alphabet.includes(key) && inputCode.length < 5) {
       inputCode += key.toUpperCase();
     }
   }
