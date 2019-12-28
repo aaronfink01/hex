@@ -4,6 +4,7 @@ var stage = 0;
 var gameCode = "";
 var inputCode = "";
 
+var size = 10; // Size is one less than the side-length of the board.
 var hexagons = [];
 var playerColor;
 var proposingFirstMove = false;
@@ -69,12 +70,12 @@ function enterGame(assignedColor) {
   angleMode(DEGREES);
   var horDist = 30 * (1 + cos(60)); // The distance between hexagons' centers horizontally.
   var verDist = 30 * sin(60); // The distance between hexagons' centers vertically.
-  for(var x = -10; x <= 10; x++) {
-    for(var y = -abs(abs(x) - 10); y <= abs(abs(x) - 10); y += 2) {
-      var upperLeft = (y == -abs(abs(x) - 10) && x <= 0);
-      var upperRight = (y == -abs(abs(x) - 10) && x >= 0);
-      var lowerLeft = (y == abs(abs(x) - 10) && x <= 0);
-      var lowerRight = (y == abs(abs(x) - 10) && x >= 0);
+  for(var x = -size; x <= size; x++) {
+    for(var y = -abs(abs(x) - size); y <= abs(abs(x) - size); y += 2) {
+      var upperLeft = (y == -abs(abs(x) - size) && x <= 0);
+      var upperRight = (y == -abs(abs(x) - size) && x >= 0);
+      var lowerLeft = (y == abs(abs(x) - size) && x <= 0);
+      var lowerRight = (y == abs(abs(x) - size) && x >= 0);
       var sideData = {"upperLeft": upperLeft, "upperRight": upperRight, "lowerLeft": lowerLeft, "lowerRight": lowerRight};
       hexagons.push(new Hexagon(width / 2 + x * horDist, height / 2 + y * verDist, sideData));
     }
