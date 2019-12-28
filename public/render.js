@@ -91,32 +91,32 @@ function renderBoard() {
   stroke(colors["red"]);
   // Add the lower-left red marker.
   beginShape();
-  for(var x = -9; x <= 0; x++) {
-    vertex(width / 2 + x * horDist - 30, height / 2 + verDist * (x + 9));
-    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 + verDist * (x + 10));
+  for(var x = -10; x <= 0; x++) {
+    vertex(width / 2 + x * horDist - 30, height / 2 + verDist * (x + 10));
+    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 + verDist * (x + 11));
   }
   endShape();
   // Add the upper-right red marker.
   beginShape();
-  for(var x = 9; x >= 0; x--) {
-    vertex(width / 2 + x * horDist + 30, height / 2 + verDist * (x - 9));
-    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 + verDist * (x - 10));
+  for(var x = 10; x >= 0; x--) {
+    vertex(width / 2 + x * horDist + 30, height / 2 + verDist * (x - 10));
+    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 + verDist * (x - 11));
   }
   endShape();
   stroke(colors["blue"]);
   // Add the upper-left blue marker.
   beginShape();
   beginShape();
-  for(var x = -9; x <= 0; x++) {
-    vertex(width / 2 + x * horDist - 30, height / 2 - verDist * (x + 9));
-    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 - verDist * (x + 10));
+  for(var x = -10; x <= 0; x++) {
+    vertex(width / 2 + x * horDist - 30, height / 2 - verDist * (x + 10));
+    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 - verDist * (x + 11));
   }
   endShape();
   // Add the lower-right blue marker.
   beginShape();
-  for(var x = 9; x >= 0; x--) {
-    vertex(width / 2 + x * horDist + 30, height / 2 - verDist * (x - 9));
-    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 - verDist * (x - 10));
+  for(var x = 10; x >= 0; x--) {
+    vertex(width / 2 + x * horDist + 30, height / 2 - verDist * (x - 10));
+    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 - verDist * (x - 11));
   }
   endShape();
   // Cap the ends of the color markers.
