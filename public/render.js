@@ -121,12 +121,12 @@ function renderBoard() {
   endShape();
   // Cap the ends of the color markers.
   stroke(colors["main"]);
-  point(width / 2 - 9 * horDist - 30, height / 2);
-  point(width / 2 + 9 * horDist + 30, height / 2);
-  point(width / 2 - 30 * cos(60), height / 2 - verDist * 10);
-  point(width / 2 + 30 * cos(60), height / 2 - verDist * 10);
-  point(width / 2 - 30 * cos(60), height / 2 + verDist * 10);
-  point(width / 2 + 30 * cos(60), height / 2 + verDist * 10);
+  point(width / 2 - 10 * horDist - 30, height / 2);
+  point(width / 2 + 10 * horDist + 30, height / 2);
+  point(width / 2 - 30 * cos(60), height / 2 - verDist * 11);
+  point(width / 2 + 30 * cos(60), height / 2 - verDist * 11);
+  point(width / 2 - 30 * cos(60), height / 2 + verDist * 11);
+  point(width / 2 + 30 * cos(60), height / 2 + verDist * 11);
 }
 
 // Render a single hexagon.
