@@ -15,6 +15,7 @@ var proposingFirstMove = false;
 var decidingOnProposition = false;
 var propositionResolved = false;
 var myTurn = false;
+var myLastMoveIndex = -1;
 var gameResult = false;
 
 // Colors to be used throughout the app.
@@ -33,6 +34,8 @@ function setup() {
   socket.on("opponentProposed", opponentProposed);
   // Your opponent has accepted or denied your proposed initial move.
   socket.on("opponentResolvedProposition", opponentResolvedProposition);
+  // Your opponent has undone their previous move.
+  socket.on("opponentUndid", opponentUndid);
   
   createCanvas(windowWidth, windowHeight);
   colors = {
@@ -98,15 +101,9 @@ function enterGame(data) {
   }
 }
 
-function opponentProposed(movePosition) {
+function opponentProposed(index) {
   decidingOnProposition = true;
-  // Find the hexagon which the opponent proposed and change its color.
-  for(var i = 0; i < hexagons.length; i++) {
-    // We check inside instead of equality to avoid rounding error problems.
-    if(hexagons[i].coordsInside(movePosition["x"] + width / 2, movePosition["y"] + height / 2)) {
-      hexagons[i].fillColor = "main";
-    }
-  }
+  hexagons[index].fillColor = "main";
 }
 
 function opponentResolvedProposition(accepted) {
@@ -140,7 +137,10 @@ function opponentResolvedProposition(accepted) {
   }
 }
 
-function opponentPlayed(movePosition) {
+// data contains:
+//    "index" which is the index of the selected hexagon in the hexagons array and
+//    "gameOver" which determines if your opponent won the game.
+function opponentPlayed(data) {
   // Determine the opponent's color.
   var opponentColor;
   if(playerColor == "red") {
@@ -148,19 +148,19 @@ function opponentPlayed(movePosition) {
   } else if(playerColor == "blue") {
     opponentColor = "red";
   }
-  // Find the hexagon in which the opponent played and change its color.
-  for(var i = 0; i < hexagons.length; i++) {
-    // We check inside instead of equality to avoid rounding error problems.
-    if(hexagons[i].coordsInside(movePosition["x"] + width / 2, movePosition["y"] + height / 2)) {
-      hexagons[i].fillColor = opponentColor;
-    }
-  }
+  hexagons[data["index"]].fillColor = opponentColor;
   
-  if(movePosition["gameOver"]) {
+  if(data["gameOver"]) {
     gameResult = opponentColor;
   } else {
     myTurn = true;
   }
+}
+
+function opponentUndid(hexagonIndex) {
+  hexagons[hexagonIndex].fillColor = false;
+  myTurn = false;
+  myLastMoveIndex = -1; // You shouldn't be able to undo right after your opponent undoes.
 }
 
 function mouseClicked() {
@@ -172,13 +172,14 @@ function mouseClicked() {
           hexagons[i].fillColor = playerColor;
           myTurn = false;
           var gameOver = checkGameOver();
-          socket.emit("playedMove", {"x": hexagons[i].x - width / 2, "y": hexagons[i].y - height / 2, "gameOver": gameOver});
+          socket.emit("playedMove", {"index": i, "gameOver": gameOver});
+          myLastMoveIndex = i;
           if(gameOver) {
             gameResult = playerColor;
           }
         } else if(proposingFirstMove) {
           hexagons[i].fillColor = "main";
-          socket.emit("proposedFirstMove", {"x": hexagons[i].x - width / 2, "y": hexagons[i].y - height / 2});
+          socket.emit("proposedFirstMove", i);
           proposingFirstMove = false;
         }
       }
@@ -216,6 +217,14 @@ function mouseClicked() {
         myTurn = true;
         socket.emit("resolvedProposition", false);
         propositionResolved = true;
+      }
+    }
+    // Or maybe you were pressing the undo button?
+    if(myTurn == false && myLastMoveIndex != -1) {
+      if(mouseX > width - 105 && mouseX < width - 25 && mouseY > 25 && mouseY < 55) {
+        hexagons[myLastMoveIndex].fillColor = false;
+        myTurn = true;
+        socket.emit("undidMove", myLastMoveIndex);
       }
     }
   }

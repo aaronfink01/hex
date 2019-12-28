@@ -14,7 +14,7 @@ var fileText = fs.readFileSync("./codes.txt").toString();
 var possibleCodes = fileText.split("\n");
 
 var codes = {}; // Store game codes currently assigned to people on the landing page.
-var games = []; // Store the socket ids for in-progress games.
+var games = {}; // Bidirectional mapping of players to their opponents.
 
 function newConnection(socket) {
   console.log("New Connection: " + socket.id);
@@ -32,10 +32,13 @@ function newConnection(socket) {
         delete codes[code];
       }
     }
-    // If the socket is in a game, forget about it.
-    for(var i = 0; i < games.length; i++) {
-      if(games[i][0] == socket.id || games[i][1] == socket.id) {
-        games.splice(i, 1);
+    // If the socket is in a game, forget about it (in both directions).
+    if(games[socket.id] != undefined) {
+      delete games[socket.id];
+      for(var player in games) {
+        if(games[player] == socket.id) {
+          delete games[player];
+        }
       }
     }
   }
@@ -50,15 +53,17 @@ function newConnection(socket) {
     var opponentId = codes[data.hostCode];
     if(data.hostCode in codes && opponentId != socket.id) { // Check that the entered code is a valid match.
       var newGame;
-      // Randomly choose game listing order (for color assignment).
+      // Randomly choose color assignment.
       if(Math.random() < 0.5) {
-        newGame = [socket.id, opponentId];
+        io.to(socket.id).emit("enterGame", {"color": "blue", "side": data["boardSide"]});
+        io.to(opponentId).emit("enterGame", {"color": "red", "side": data["boardSide"]});
       } else {
-        newGame = [opponentId, socket.id];
+        io.to(opponentId).emit("enterGame", {"color": "blue", "side": data["boardSide"]});
+        io.to(socket.id).emit("enterGame", {"color": "red", "side": data["boardSide"]});
       }
-      io.to(newGame[0]).emit("enterGame", {"color": "blue", "side": data["boardSide"]});
-      io.to(newGame[1]).emit("enterGame", {"color": "red", "side": data["boardSide"]});
-      games.push(newGame);
+      
+      games[socket.id] = opponentId;
+      games[opponentId] = socket.id;
       delete codes[data.hostCode];
       delete codes[data.joinCode];
     }
@@ -66,54 +71,30 @@ function newConnection(socket) {
   
   socket.on("playedMove", playedMove);
   // data contains:
-  //    "x" which is the x position of the selected hexagon and
-  //    "y" which is the y position of the selected hexagon and
+  //    "index" which is the index of the selected hexagon in the hexagons array and
   //    "gameOver" which determines if the player won the game.
-  // note: width / 2 and height / 2 have been substracted respectively
-  // so players with different window sizes will not encounter problems.
   function playedMove(data) {
-    var opponentId;
-    // Determine the opponent's socket id.
-    for(var i = 0; i < games.length; i++) {
-      if(games[i][0] == socket.id) {
-        opponentId = games[i][1];
-      } else if(games[i][1] == socket.id) {
-        opponentId = games[i][0];
-      }
-    }
+    var opponentId = games[socket.id];
     io.to(opponentId).emit("opponentPlayed", data);
   }
   
   socket.on("proposedFirstMove", proposedFirstMove);
-  // data contains:
-  //    "x" which is the x position of the selected hexagon and
-  //    "y" which is the y position of the selected hexagon and
-  // note (as above): width / 2 and height / 2 have been substracted respectively
-  // so players with different window sizes will not encounter problems.
-  function proposedFirstMove(data) {
-    var opponentId;
-    // Determine the opponent's socket id.
-    for(var i = 0; i < games.length; i++) {
-      if(games[i][0] == socket.id) {
-        opponentId = games[i][1];
-      } else if(games[i][1] == socket.id) {
-        opponentId = games[i][0];
-      }
-    }
-    io.to(opponentId).emit("opponentProposed", data);
+  // This parameter is the index of the proposed hexagon in the hexagons array.
+  function proposedFirstMove(index) {
+    var opponentId = games[socket.id];
+    io.to(opponentId).emit("opponentProposed", index);
   }
   
   socket.on("resolvedProposition", resolvedProposition);
   function resolvedProposition(accepted) {
-   var opponentId;
-    // Determine the opponent's socket id.
-    for(var i = 0; i < games.length; i++) {
-      if(games[i][0] == socket.id) {
-        opponentId = games[i][1];
-      } else if(games[i][1] == socket.id) {
-        opponentId = games[i][0];
-      }
-    }
+    var opponentId = games[socket.id];
     io.to(opponentId).emit("opponentResolvedProposition", accepted);
-  } 
+  }
+  
+  socket.on("undidMove", undidMove);
+  // This paremeter is the index in the hexagons array of the hexagon which is being unplayed.
+  function undidMove(hexagonIndex) {
+    var opponentId = games[socket.id];
+    io.to(opponentId).emit("opponentUndid", hexagonIndex);
+  }
 }

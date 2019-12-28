@@ -69,6 +69,23 @@ function renderOpponentTurn() {
   } else {
     text("You have lost.", width / 2, height / 2 + 330);
   }
+  
+  if(myLastMoveIndex != -1) {
+    renderUndo();
+  }
+}
+
+// Render the undo button (on the opponent's turn).
+function renderUndo() {
+  strokeWeight(3);
+  stroke(colors[playerColor]);
+  noFill();
+  rect(width - 65, 40, 80, 30, 10);
+  noStroke();
+  fill(colors[playerColor]);
+  textAlign(CENTER);
+  textSize(25);
+  text("Undo", width - 65, 42.5);
 }
 
 // Render the entire game board.
