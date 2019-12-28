@@ -91,42 +91,42 @@ function renderBoard() {
   stroke(colors["red"]);
   // Add the lower-left red marker.
   beginShape();
-  for(var x = -board; x <= 0; x++) {
-    vertex(width / 2 + x * horDist - 30, height / 2 + verDist * (x + board));
-    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 + verDist * (x + board + 1));
+  for(var x = -side; x <= 0; x++) {
+    vertex(width / 2 + x * horDist - 30, height / 2 + verDist * (x + side));
+    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 + verDist * (x + side + 1));
   }
   endShape();
   // Add the upper-right red marker.
   beginShape();
-  for(var x = board; x >= 0; x--) {
-    vertex(width / 2 + x * horDist + 30, height / 2 + verDist * (x - board));
-    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 + verDist * (x - board - 1));
+  for(var x = side; x >= 0; x--) {
+    vertex(width / 2 + x * horDist + 30, height / 2 + verDist * (x - side));
+    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 + verDist * (x - side - 1));
   }
   endShape();
   stroke(colors["blue"]);
   // Add the upper-left blue marker.
   beginShape();
   beginShape();
-  for(var x = -board; x <= 0; x++) {
-    vertex(width / 2 + x * horDist - 30, height / 2 - verDist * (x + board));
-    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 - verDist * (x + board + 1));
+  for(var x = -side; x <= 0; x++) {
+    vertex(width / 2 + x * horDist - 30, height / 2 - verDist * (x + side));
+    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 - verDist * (x + side + 1));
   }
   endShape();
   // Add the lower-right blue marker.
   beginShape();
-  for(var x = board; x >= 0; x--) {
-    vertex(width / 2 + x * horDist + 30, height / 2 - verDist * (x - board));
-    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 - verDist * (x - board - 1));
+  for(var x = side; x >= 0; x--) {
+    vertex(width / 2 + x * horDist + 30, height / 2 - verDist * (x - side));
+    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 - verDist * (x - side - 1));
   }
   endShape();
   // Cap the ends of the color markers.
   stroke(colors["main"]);
-  point(width / 2 - board * horDist - 30, height / 2);
-  point(width / 2 + board * horDist + 30, height / 2);
-  point(width / 2 - 30 * cos(60), height / 2 - verDist * 11);
-  point(width / 2 + 30 * cos(60), height / 2 - verDist * 11);
-  point(width / 2 - 30 * cos(60), height / 2 + verDist * 11);
-  point(width / 2 + 30 * cos(60), height / 2 + verDist * 11);
+  point(width / 2 - side * horDist - 30, height / 2);
+  point(width / 2 + side * horDist + 30, height / 2);
+  point(width / 2 - 30 * cos(60), height / 2 - verDist * (side + 1));
+  point(width / 2 + 30 * cos(60), height / 2 - verDist * (side + 1));
+  point(width / 2 - 30 * cos(60), height / 2 + verDist * (side + 1));
+  point(width / 2 + 30 * cos(60), height / 2 + verDist * (side + 1));
 }
 
 // Render a single hexagon.
@@ -174,4 +174,19 @@ function renderInput() {
     textSize(20);
     text("Enter your friend's code.", width / 2 - 140, height / 2 + 75);
   }
+}
+
+// Render the board side-length input slider on the landing page.
+function renderSlider() {
+  strokeWeight(5);
+  stroke(colors["main"]);
+  strokeCap(ROUND);
+  line(width / 2 - 160, height / 2 + 250, width / 2 + 160, height / 2 + 250);
+  var handlePos = ((inputSide - 4) / 10) * 320 + (width / 2 - 160);
+  line(handlePos, height / 2  + 225, handlePos, height / 2 + 275);
+  textAlign(CENTER);
+  textSize(20);
+  noStroke();
+  fill(colors["main"]);
+  text(str(inputSide + 1), handlePos, height / 2 + 300);
 }

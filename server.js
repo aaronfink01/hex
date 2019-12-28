@@ -43,8 +43,9 @@ function newConnection(socket) {
   // When a player enters a game code from the landing page.
   socket.on("enterGame", enterGame);
   // data contains:
-  //   "hostCode" which is the code entered by the sender and
-  //   "joinCode" which is the sender's own code.
+  //   "hostCode" which is the code entered by the sender
+  //   "joinCode" which is the sender's own code and
+  //   "boardSide" which is one less than the side-length of the desired board.
   function enterGame(data) {
     var opponentId = codes[data.hostCode];
     if(data.hostCode in codes && opponentId != socket.id) { // Check that the entered code is a valid match.
@@ -55,8 +56,8 @@ function newConnection(socket) {
       } else {
         newGame = [opponentId, socket.id];
       }
-      io.to(newGame[0]).emit("enterGame", "blue");
-      io.to(newGame[1]).emit("enterGame", "red");
+      io.to(newGame[0]).emit("enterGame", {"color": "blue", "side": data["boardSide"]});
+      io.to(newGame[1]).emit("enterGame", {"color": "red", "side": data["boardSide"]});
       games.push(newGame);
       delete codes[data.hostCode];
       delete codes[data.joinCode];

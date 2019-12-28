@@ -1,10 +1,14 @@
 var socket;
 var stage = 0;
 
-var gameCode = "";
-var inputCode = "";
+var gameCode = ""; // The game code presented at the top of the landing page.
+var inputCode = ""; // The current code typed into the input field.
+var inputSide = 10; // The current (one-less-than) side-length as set / shown by the slider.
+var draggingSlider = false;
 
-var board = 10; // Board is one less than the side-length of the board.
+// Side is one less than the actual side-length of the board.
+// The variable represents the number of columns away from the center at the edge of the board.
+var side;
 var hexagons = [];
 var playerColor;
 var proposingFirstMove = false;
@@ -17,7 +21,8 @@ var gameResult = false;
 var colors;
 
 function setup() {
-  socket = io.connect("https://onlinehex.herokuapp.com");
+  //socket = io.connect("https://onlinehex.herokuapp.com");
+  socket = io.connect("http://localhost:3000");
   // When a player reaches the landing page, the server assigns them game code.
   socket.on("gameCodeAssigned", gameCodeAssigned);
   // You have been matched with another player, and a game is beginning.
@@ -44,6 +49,8 @@ function draw() {
   if(stage == 0) {
     renderCode();
     renderInput();
+    renderSlider();
+    handleSliderDragging();
   } else if(stage == 1) {
     renderBoard();
     if(proposingFirstMove) {
@@ -62,27 +69,31 @@ function gameCodeAssigned(code) {
   gameCode = code;
 }
 
-function enterGame(assignedColor) {
+// data contains:
+//   "color" which is this player's color and
+//   "side" which is one less than the desired board side-length.
+function enterGame(data) {
   stage = 1;
-  playerColor = assignedColor;
+  playerColor = data["color"];
+  side = data["side"];
   
   // Initalize the board's hexagons.
   angleMode(DEGREES);
   var horDist = 30 * (1 + cos(60)); // The distance between hexagons' centers horizontally.
   var verDist = 30 * sin(60); // The distance between hexagons' centers vertically.
-  for(var x = -board; x <= board; x++) {
-    for(var y = -abs(abs(x) - board); y <= abs(abs(x) - board); y += 2) {
-      var upperLeft = (y == -abs(abs(x) - board) && x <= 0);
-      var upperRight = (y == -abs(abs(x) - board) && x >= 0);
-      var lowerLeft = (y == abs(abs(x) - board) && x <= 0);
-      var lowerRight = (y == abs(abs(x) - board) && x >= 0);
+  for(var x = -side; x <= side; x++) {
+    for(var y = -abs(abs(x) - side); y <= abs(abs(x) - side); y += 2) {
+      var upperLeft = (y == -abs(abs(x) - side) && x <= 0);
+      var upperRight = (y == -abs(abs(x) - side) && x >= 0);
+      var lowerLeft = (y == abs(abs(x) - side) && x <= 0);
+      var lowerRight = (y == abs(abs(x) - side) && x >= 0);
       var sideData = {"upperLeft": upperLeft, "upperRight": upperRight, "lowerLeft": lowerLeft, "lowerRight": lowerRight};
       hexagons.push(new Hexagon(width / 2 + x * horDist, height / 2 + y * verDist, sideData));
     }
   }
   
   // The blue player goes first.
-  if(assignedColor == "blue") {
+  if(playerColor == "blue") {
     proposingFirstMove = true;
   }
 }
@@ -210,6 +221,20 @@ function mouseClicked() {
   }
 }
 
+function mousePressed() {
+  if(stage == 0) {
+    if(mouseX > width / 2 - 160 && mouseX < width / 2 + 160 && mouseY > height / 2 + 225 && mouseY < height / 2 + 275) {
+      draggingSlider = true;
+    }
+  }
+}
+
+function mouseReleased() {
+  if(stage == 0) {
+    draggingSlider = false;
+  }
+}
+
 function keyTyped() {
   if(stage == 0) {
     var alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -225,7 +250,19 @@ function keyPressed() {
       inputCode = inputCode.slice(0, -1);
     }
     if(keyCode == RETURN && inputCode.length == 5) {
-      socket.emit("enterGame", {"hostCode": inputCode, "joinCode": gameCode});
+      socket.emit("enterGame", {"hostCode": inputCode, "joinCode": gameCode, "boardSide": inputSide});
+    }
+  }
+}
+
+function handleSliderDragging() {
+  if(draggingSlider) {
+    if(mouseX < width / 2 - 160) {
+      inputSide = 4;
+    } else if(mouseX > width / 2 + 160) {
+      inputSide = 14;
+    } else {
+      inputSide = round(((mouseX - (width / 2 - 160)) / 320) * 10 + 4);
     }
   }
 }
