@@ -91,38 +91,38 @@ function renderBoard() {
   stroke(colors["red"]);
   // Add the lower-left red marker.
   beginShape();
-  for(var x = -size; x <= 0; x++) {
-    vertex(width / 2 + x * horDist - 30, height / 2 + verDist * (x + size));
-    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 + verDist * (x + size + 1));
+  for(var x = -board; x <= 0; x++) {
+    vertex(width / 2 + x * horDist - 30, height / 2 + verDist * (x + board));
+    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 + verDist * (x + board + 1));
   }
   endShape();
   // Add the upper-right red marker.
   beginShape();
-  for(var x = size; x >= 0; x--) {
-    vertex(width / 2 + x * horDist + 30, height / 2 + verDist * (x - size));
-    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 + verDist * (x - size - 1));
+  for(var x = board; x >= 0; x--) {
+    vertex(width / 2 + x * horDist + 30, height / 2 + verDist * (x - board));
+    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 + verDist * (x - board - 1));
   }
   endShape();
   stroke(colors["blue"]);
   // Add the upper-left blue marker.
   beginShape();
   beginShape();
-  for(var x = -size; x <= 0; x++) {
-    vertex(width / 2 + x * horDist - 30, height / 2 - verDist * (x + size));
-    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 - verDist * (x + size + 1));
+  for(var x = -board; x <= 0; x++) {
+    vertex(width / 2 + x * horDist - 30, height / 2 - verDist * (x + board));
+    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 - verDist * (x + board + 1));
   }
   endShape();
   // Add the lower-right blue marker.
   beginShape();
-  for(var x = size; x >= 0; x--) {
-    vertex(width / 2 + x * horDist + 30, height / 2 - verDist * (x - size));
-    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 - verDist * (x - size - 1));
+  for(var x = board; x >= 0; x--) {
+    vertex(width / 2 + x * horDist + 30, height / 2 - verDist * (x - board));
+    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 - verDist * (x - board - 1));
   }
   endShape();
   // Cap the ends of the color markers.
   stroke(colors["main"]);
-  point(width / 2 - size * horDist - 30, height / 2);
-  point(width / 2 + size * horDist + 30, height / 2);
+  point(width / 2 - board * horDist - 30, height / 2);
+  point(width / 2 + board * horDist + 30, height / 2);
   point(width / 2 - 30 * cos(60), height / 2 - verDist * 11);
   point(width / 2 + 30 * cos(60), height / 2 - verDist * 11);
   point(width / 2 - 30 * cos(60), height / 2 + verDist * 11);
