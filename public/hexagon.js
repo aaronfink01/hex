@@ -22,7 +22,6 @@ class Hexagon {
         fill(red(highlightColor), green(highlightColor), blue(highlightColor), 100);
       }
     } else {
-      print(this.fillColor)
       fill(colors[this.fillColor]);
     }
     // Place the six vertices of the hexagon.

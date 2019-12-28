@@ -97,4 +97,10 @@ function newConnection(socket) {
     var opponentId = games[socket.id];
     io.to(opponentId).emit("opponentUndid", hexagonIndex);
   }
+  
+  socket.on("resigned", resigned);
+  function resigned() {
+    var opponentId = games[socket.id];
+    io.to(opponentId).emit("opponentResigned");
+  }
 }

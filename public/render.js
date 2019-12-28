@@ -69,23 +69,29 @@ function renderOpponentTurn() {
   } else {
     text("You have lost.", width / 2, height / 2 + 330);
   }
-  
-  if(myLastMoveIndex != -1) {
-    renderUndo();
+}
+
+// Render the in-game menu on the right side of the screen.
+function renderMenu() {
+  if(gameResult == false) {
+    renderMenuButton("Resign", width - 70, 40, 90);
+  }
+  if(myTurn == false && myLastMoveIndex != -1 && gameResult == false) {
+    renderMenuButton("Undo", width - 65, 85, 80)
   }
 }
 
-// Render the undo button (on the opponent's turn).
-function renderUndo() {
+// Render a button in the in-game menu.
+function renderMenuButton(label, x, y, horSize) {
   strokeWeight(3);
   stroke(colors[playerColor]);
   noFill();
-  rect(width - 65, 40, 80, 30, 10);
+  rect(x, y, horSize, 35, 10);
   noStroke();
   fill(colors[playerColor]);
   textAlign(CENTER);
   textSize(25);
-  text("Undo", width - 65, 42.5);
+  text(label, x, y + 2.5);
 }
 
 // Render the entire game board.

@@ -36,6 +36,8 @@ function setup() {
   socket.on("opponentResolvedProposition", opponentResolvedProposition);
   // Your opponent has undone their previous move.
   socket.on("opponentUndid", opponentUndid);
+  // Your opponent has resigned.
+  socket.on("opponentResigned", opponentResigned);
   
   createCanvas(windowWidth, windowHeight);
   colors = {
@@ -56,6 +58,7 @@ function draw() {
     handleSliderDragging();
   } else if(stage == 1) {
     renderBoard();
+    renderMenu();
     if(proposingFirstMove) {
       renderProposing();
     } else if(decidingOnProposition) {
@@ -163,6 +166,11 @@ function opponentUndid(hexagonIndex) {
   myLastMoveIndex = -1; // You shouldn't be able to undo right after your opponent undoes.
 }
 
+function opponentResigned() {
+  myTurn = false;
+  gameResult = playerColor;
+}
+
 function mouseClicked() {
   if(stage == 1) {
     // Find the hexagon in which you played and send off its position.
@@ -219,9 +227,22 @@ function mouseClicked() {
         propositionResolved = true;
       }
     }
-    // Or maybe you were pressing the undo button?
+    // Or maybe you were pressing the resign button.
+    if(mouseX > width - 115 && mouseX < width - 25 && mouseY > 25 && mouseY < 60) {
+      myTurn = false;
+      // Determine the opponent's color.
+      var opponentColor;
+      if(playerColor == "red") {
+        opponentColor = "blue";
+      } else if(playerColor == "blue") {
+        opponentColor = "red";
+      }
+      gameResult = opponentColor;
+      socket.emit("resigned");
+    }
+    // Or maybe you were pressing the undo button.
     if(myTurn == false && myLastMoveIndex != -1) {
-      if(mouseX > width - 105 && mouseX < width - 25 && mouseY > 25 && mouseY < 55) {
+      if(mouseX > width - 105 && mouseX < width - 25 && mouseY > 67.5 && mouseY < 102.5) {
         hexagons[myLastMoveIndex].fillColor = false;
         myTurn = true;
         socket.emit("undidMove", myLastMoveIndex);
