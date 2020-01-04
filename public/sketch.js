@@ -27,8 +27,8 @@ var gameTree = [];
 var colors;
 
 function setup() {
-  //socket = io.connect("https://onlinehex.herokuapp.com");
-  socket = io.connect("http://localhost:3000");
+  socket = io.connect("https://onlinehex.herokuapp.com");
+  //socket = io.connect("http://localhost:3000");
   // When a player reaches the landing page, the server assigns them game code.
   socket.on("gameCodeAssigned", gameCodeAssigned);
   // You have been matched with another player, and a game is beginning.
