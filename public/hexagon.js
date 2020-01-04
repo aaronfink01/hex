@@ -25,12 +25,12 @@ class Hexagon {
       fill(colors[this.fillColor]);
     }
     // Place the six vertices of the hexagon.
-    vertex(this.x + 30, this.y);
-    vertex(this.x + 30 * cos(60), this.y - 30 * sin(60));
-    vertex(this.x - 30 * cos(60), this.y - 30 * sin(60));
-    vertex(this.x - 30, this.y);
-    vertex(this.x - 30 * cos(60), this.y + 30 * sin(60));
-    vertex(this.x + 30 * cos(60), this.y + 30 * sin(60));
+    vertex(this.x + scaling, this.y);
+    vertex(this.x + scaling * cos(60), this.y - scaling * sin(60));
+    vertex(this.x - scaling * cos(60), this.y - scaling * sin(60));
+    vertex(this.x - scaling, this.y);
+    vertex(this.x - scaling * cos(60), this.y + scaling * sin(60));
+    vertex(this.x + scaling * cos(60), this.y + scaling * sin(60));
     endShape(CLOSE);
   }
   
@@ -38,15 +38,15 @@ class Hexagon {
   coordsInside(x, y) {
     angleMode(DEGREES);
     // Is the mouse within the vertical, rectangular section of the hexagon?
-    if(x > this.x - 30 * cos(60) && x < this.x + 30 * cos(60) && y > this.y - 30 * sin(60) && y < this.y + 30 * sin(60)) {
+    if(x > this.x - scaling * cos(60) && x < this.x + scaling * cos(60) && y > this.y - scaling * sin(60) && y < this.y + scaling * sin(60)) {
       return true;
     }
     // Is the mouse within the left triangular section of the hexagon?
-    if(x > this.x - 30 && x < this.x - 30 * cos(60) && y > this.y - 30 * sin(60) + tan(60) * (this.x - 30 * cos(60) - x) && y < this.y + 30 * sin(60) - tan(60) * (this.x - 30 * cos(60) - x)) {
+    if(x > this.x - scaling && x < this.x - scaling * cos(60) && y > this.y - scaling * sin(60) + tan(60) * (this.x - scaling * cos(60) - x) && y < this.y + scaling * sin(60) - tan(60) * (this.x - scaling * cos(60) - x)) {
       return true;
     }
     // Is the mouse within the right triangular section of the hexagon?
-    if(x > this.x + 30 * cos(60) && x < this.x + 30 && y > this.y - 30 * sin(60) + tan(60) * (x - (this.x + 30 * cos(60))) && y < this.y + 30 * sin(60) - tan(60) * (x - (this.x + 30 * cos(60)))) {
+    if(x > this.x + scaling * cos(60) && x < this.x + scaling && y > this.y - scaling * sin(60) + tan(60) * (x - (this.x + scaling * cos(60))) && y < this.y + scaling * sin(60) - tan(60) * (x - (this.x + scaling * cos(60)))) {
       return true;
     }
     return false;
@@ -61,8 +61,8 @@ class Hexagon {
     // Otherwise, attempt to make a path from each adjacent hexagon
     // (that hasn't been used yet and is of the right color).
     var newPrevUsedHexagons = prevUsedHexagons.concat([this]);
-    var horDist = 30 * (1 + cos(60)); // The distance between hexagons' centers horizontally.
-    var verDist = 30 * sin(60); // The distance between hexagons' centers vertically.
+    var horDist = scaling * (1 + cos(60)); // The distance between hexagons' centers horizontally.
+    var verDist = scaling * sin(60); // The distance between hexagons' centers vertically.
     var absoluteDist = sqrt(pow(horDist, 2) + pow(verDist, 2)); // The total distance is calculated by Pythagoras.
     for(var i = 0; i < hexagons.length; i++) {
       // Allow for a possible error of up to 10 to avoid rounding problems.

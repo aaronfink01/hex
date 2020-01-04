@@ -1,10 +1,39 @@
+// Render the game tree that is shown after the game is completed.
+function renderGameTree() {
+  renderGameTreeNode(gameTree[0]);
+}
+
+// Render a game tree node and its children recursively.
+// NOTE: The children are rendered first so that the line to them will be under the current node.
+function renderGameTreeNode(currentNode) {
+  // Display the children of the current node;
+  var children = currentNode.children;
+  for(var i = 0; i < children.length; i++) {
+    strokeWeight(3);
+    stroke(0);
+    line(currentNode.displayX, currentNode.displayY, children[i].displayX, currentNode.displayY);
+    line(children[i].displayX, currentNode.displayY, children[i].displayX, children[i].displayY);
+    renderGameTreeNode(children[i]);
+  }
+  // Display the current node.
+  if(currentGameState == currentNode) {
+    strokeWeight(3);
+    stroke(colors["main"]);
+  } else {
+    noStroke();
+  }
+  console.log(colors[currentNode.lastPlayedColor]);
+  fill(colors[currentNode.lastPlayedColor]);
+  ellipse(currentNode.displayX, currentNode.displayY, 30, 30);
+}
+
 // Render everything that shows during your turn.
 function renderMyTurn() {
   noStroke();
   fill(colors[playerColor]);
   textSize(30);
   textAlign(CENTER);
-  text("Play your move.", width / 2, height / 2 + 330);
+  text("Play your move.", width / 2, height -  70);
   
   renderHighlight(playerColor);
 }
@@ -15,7 +44,7 @@ function renderProposing() {
   fill(colors[playerColor]);
   textSize(30);
   textAlign(CENTER);
-  text("Propose a first move.", width / 2, height / 2 + 330);
+  text("Propose a first move.", width / 2, height - 70);
   
   renderHighlight("main");
 }
@@ -26,22 +55,23 @@ function renderDeciding() {
   fill(colors[playerColor]);
   textSize(30);
   textAlign(CENTER);
-  text("Would you like to play this move?", width / 2, height / 2 + 330);
+  text("Would you like to play this move?", width / 2, height - 70);
   
   // Display the yes and no buttons.
   rectMode(CENTER);
   strokeWeight(3);
   stroke(colors[playerColor]);
   noFill();
-  rect(width / 2 - 75, height / 2 + 370, 50, 30, 10);
-  rect(width / 2 + 75, height / 2 + 370, 50, 30, 10);
+  rect(width / 2 - 75, height - 30, 50, 30, 10);
+  rect(width / 2 + 75, height - 30, 50, 30, 10);
   noStroke();
   fill(colors[playerColor]);
   textSize(20);
-  text("Yes", width / 2 - 75, height / 2 + 372.5);
-  text("No", width / 2 + 75, height / 2 + 372.5);
+  text("Yes", width / 2 - 75, height - 27.5);
+  text("No", width / 2 + 75, height - 27.5);
 }
 
+// Lightly fill in the hexagon over which the mouse is hovering during your turn.
 function renderHighlight(highlightColor) {
   for(var i = 0; i < hexagons.length; i++) {
     if(hexagons[i].coordsInside(mouseX, mouseY) && hexagons[i].fillColor == false) {
@@ -58,22 +88,22 @@ function renderOpponentTurn() {
   textAlign(CENTER);
   if(propositionResolved == false) {
     if(playerColor == "blue") {
-      text("Wait for your opponent to make a choice.", width / 2, height / 2 + 330);
+      text("Wait for your opponent to make a choice.", width / 2, height - 70);
     } else if(playerColor == "red") {
-      text("Wait for your opponent to propose a move.", width / 2, height / 2 + 330);
+      text("Wait for your opponent to propose a move.", width / 2, height - 70);
     }
   } else if(gameResult == false) {
-    text("Wait for your opponent to play.", width / 2, height / 2 + 330);
+    text("Wait for your opponent to play.", width / 2, height - 70);
   } else if(gameResult == playerColor) {
-    text("You have won.", width / 2, height / 2 + 330);
+    text("You have won.", width / 2, height - 70);
   } else {
-    text("You have lost.", width / 2, height / 2 + 330);
+    text("You have lost.", width / 2, height - 70);
   }
 }
 
 // Render the in-game menu on the right side of the screen.
 function renderMenu() {
-  if(gameResult == false) {
+  if(gameResult == false && propositionResolved) {
     renderMenuButton("Resign", width - 70, 40, 90);
   }
   if(myTurn == false && myLastMoveIndex != -1 && gameResult == false) {
@@ -97,7 +127,7 @@ function renderMenuButton(label, x, y, horSize) {
 // Render the entire game board.
 function renderBoard() {
   angleMode(DEGREES);
-  strokeWeight(3);
+  strokeWeight(scaling / 10);
   stroke(colors["main"]);
   strokeCap(ROUND);
   noFill();
@@ -107,23 +137,23 @@ function renderBoard() {
     hexagons[i].render(false);
   }
   
-  var horDist = 30 * (1 + cos(60)); // The distance between hexagons' centers horizontally.
-  var verDist = 30 * sin(60); // The distance between hexagons' centers vertically.
-  strokeWeight(3.5);
+  var horDist = scaling * (1 + cos(60)); // The distance between hexagons' centers horizontally.
+  var verDist = scaling * sin(60); // Half the distance between hexagons' centers vertically.
+  strokeWeight(scaling / 10 + 0.5);
   noFill();
   stroke(colors["red"]);
   // Add the lower-left red marker.
   beginShape();
   for(var x = -side; x <= 0; x++) {
-    vertex(width / 2 + x * horDist - 30, height / 2 + verDist * (x + side));
-    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 + verDist * (x + side + 1));
+    vertex(width / 2 + x * horDist - scaling, height / 2 + verDist * (x + side));
+    vertex(width / 2 + x * horDist - scaling * cos(60), height / 2 + verDist * (x + side + 1));
   }
   endShape();
   // Add the upper-right red marker.
   beginShape();
   for(var x = side; x >= 0; x--) {
-    vertex(width / 2 + x * horDist + 30, height / 2 + verDist * (x - side));
-    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 + verDist * (x - side - 1));
+    vertex(width / 2 + x * horDist + scaling, height / 2 + verDist * (x - side));
+    vertex(width / 2 + x * horDist + scaling * cos(60), height / 2 + verDist * (x - side - 1));
   }
   endShape();
   stroke(colors["blue"]);
@@ -131,37 +161,25 @@ function renderBoard() {
   beginShape();
   beginShape();
   for(var x = -side; x <= 0; x++) {
-    vertex(width / 2 + x * horDist - 30, height / 2 - verDist * (x + side));
-    vertex(width / 2 + x * horDist - 30 * cos(60), height / 2 - verDist * (x + side + 1));
+    vertex(width / 2 + x * horDist - scaling, height / 2 - verDist * (x + side));
+    vertex(width / 2 + x * horDist - scaling * cos(60), height / 2 - verDist * (x + side + 1));
   }
   endShape();
   // Add the lower-right blue marker.
   beginShape();
   for(var x = side; x >= 0; x--) {
-    vertex(width / 2 + x * horDist + 30, height / 2 - verDist * (x - side));
-    vertex(width / 2 + x * horDist + 30 * cos(60), height / 2 - verDist * (x - side - 1));
+    vertex(width / 2 + x * horDist + scaling, height / 2 - verDist * (x - side));
+    vertex(width / 2 + x * horDist + scaling * cos(60), height / 2 - verDist * (x - side - 1));
   }
   endShape();
   // Cap the ends of the color markers.
   stroke(colors["main"]);
-  point(width / 2 - side * horDist - 30, height / 2);
-  point(width / 2 + side * horDist + 30, height / 2);
-  point(width / 2 - 30 * cos(60), height / 2 - verDist * (side + 1));
-  point(width / 2 + 30 * cos(60), height / 2 - verDist * (side + 1));
-  point(width / 2 - 30 * cos(60), height / 2 + verDist * (side + 1));
-  point(width / 2 + 30 * cos(60), height / 2 + verDist * (side + 1));
-}
-
-// Render a single hexagon.
-function renderHex(x, y) {
-  beginShape();
-  vertex(x + 30, y);
-  vertex(x + 30 * cos(60), y - 30 * sin(60));
-  vertex(x - 30 * cos(60), y - 30 * sin(60));
-  vertex(x - 30, y);
-  vertex(x - 30 * cos(60), y + 30 * sin(60));
-  vertex(x + 30 * cos(60), y + 30 * sin(60));
-  endShape(CLOSE);
+  point(width / 2 - side * horDist - scaling, height / 2);
+  point(width / 2 + side * horDist + scaling, height / 2);
+  point(width / 2 - scaling * cos(60), height / 2 - verDist * (side + 1));
+  point(width / 2 + scaling * cos(60), height / 2 - verDist * (side + 1));
+  point(width / 2 - scaling * cos(60), height / 2 + verDist * (side + 1));
+  point(width / 2 + scaling * cos(60), height / 2 + verDist * (side + 1));
 }
 
 // Render the game code display on the landing page.

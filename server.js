@@ -92,7 +92,7 @@ function newConnection(socket) {
   }
   
   socket.on("undidMove", undidMove);
-  // This paremeter is the index in the hexagons array of the hexagon which is being unplayed.
+  // This parameter is the index in the hexagons array of the hexagon which is being unplayed.
   function undidMove(hexagonIndex) {
     var opponentId = games[socket.id];
     io.to(opponentId).emit("opponentUndid", hexagonIndex);
@@ -102,5 +102,12 @@ function newConnection(socket) {
   function resigned() {
     var opponentId = games[socket.id];
     io.to(opponentId).emit("opponentResigned");
+  }
+  
+  socket.on("revertedBoard", revertedBoard);
+  // This parameter is the index in the gameTree array of the game state which is being reverted.
+  function revertedBoard(gameNodeIndex) {
+    var opponentId = games[socket.id];
+    io.to(opponentId).emit("revertedBoard", gameNodeIndex);
   }
 }
