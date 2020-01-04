@@ -22,6 +22,7 @@ var gameResult = false;
 var previousGameState = false;
 var currentGameState = false;
 var gameTree = [];
+var treeScroll = 0;
 
 // Colors to be used throughout the app.
 var colors;
@@ -377,9 +378,15 @@ function keyPressed() {
   }
 }
 
+function mouseWheel(event) {
+  treeScroll += event.delta;
+  beginAssigningNodePositions();
+  return false;
+}
+
 // Call assignNodePositions on the first node.
 function beginAssigningNodePositions() {
-  assignNodePositions(gameTree[0], 50, 50);
+  assignNodePositions(gameTree[0], 50, 50 - treeScroll);
 }
 
 // Recursively calculate and assign the on-screen positions of each game tree node.
